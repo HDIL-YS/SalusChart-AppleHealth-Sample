@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -39,16 +40,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.PaddingValues
 import com.hdil.saluschart.core.chart.BaseChartMark
 import com.hdil.saluschart.core.chart.ChartMark
 import com.hdil.saluschart.core.chart.InteractionType
@@ -58,22 +56,21 @@ import com.hdil.saluschart.core.chart.ReferenceLineSpec
 import com.hdil.saluschart.core.chart.chartDraw.LineStyle
 import com.hdil.saluschart.core.chart.chartDraw.ReferenceLineType
 import com.hdil.saluschart.core.chart.chartDraw.YAxisPosition
-import com.hdil.saluschart.core.chart.toRangeChartMarksByXGroup
 import com.hdil.saluschart.core.transform.transform
 import com.hdil.saluschart.core.util.AggregationType
 import com.hdil.saluschart.core.util.TimeUnitGroup
 import com.hdil.saluschart.data.model.model.HeartRate
 import com.hdil.saluschart.data.model.model.HeartRateSample
+import com.hdil.saluschart.data.model.model.SleepSession
+import com.hdil.saluschart.data.model.model.SleepStage
+import com.hdil.saluschart.data.model.model.SleepStageType
 import com.hdil.saluschart.ui.compose.charts.LineChart
 import com.hdil.saluschart.ui.compose.charts.MiniActivityRings
 import com.hdil.saluschart.ui.compose.charts.MinimalBarChart
 import com.hdil.saluschart.ui.compose.charts.MinimalLineChart
 import com.hdil.saluschart.ui.compose.charts.MinimalRangeBarChart
-import com.hdil.saluschart.ui.compose.charts.RangeBarChart
-import com.hdil.saluschart.data.model.model.SleepSession
-import com.hdil.saluschart.data.model.model.SleepStage
-import com.hdil.saluschart.data.model.model.SleepStageType
 import com.hdil.saluschart.ui.compose.charts.MinimalSleepStageChart
+import com.hdil.saluschart.ui.compose.charts.RangeBarChart
 import com.hdil.saluschart.ui.compose.charts.SleepStageChart
 import com.hdil.saluschart.ui.theme.LocalSalusChartColors
 import com.hdil.saluschart.ui.theme.SalusChartColorScheme
@@ -207,11 +204,6 @@ private val stepsTrendData = listOf(
     ChartMark(21.0, 8700.0), ChartMark(22.0, 9100.0), ChartMark(23.0, 8500.0),
     ChartMark(24.0, 9000.0), ChartMark(25.0, 9340.0),
 )
-private val exerciseMinutesData = listOf(
-    ChartMark(0.0, 28.0), ChartMark(1.0, 35.0), ChartMark(2.0, 22.0),
-    ChartMark(3.0, 41.0), ChartMark(4.0, 18.0), ChartMark(5.0, 38.0),
-    ChartMark(6.0, 30.0),
-)
 private val environmentalSoundLevelsData = listOf(
     ChartMark(0.0, 67.0), ChartMark(0.0, 74.0),
     ChartMark(1.0, 62.0), ChartMark(1.0, 81.0),
@@ -220,11 +212,6 @@ private val environmentalSoundLevelsData = listOf(
     ChartMark(4.0, 66.0), ChartMark(4.0, 78.0),
     ChartMark(5.0, 63.0), ChartMark(5.0, 82.0),
     ChartMark(6.0, 58.0), ChartMark(6.0, 73.0),
-)
-private val sleepTrendData = listOf(
-    ChartMark(0.0, 6.5), ChartMark(1.0, 7.0), ChartMark(2.0, 6.8),
-    ChartMark(3.0, 7.2), ChartMark(4.0, 7.5), ChartMark(5.0, 7.7),
-    ChartMark(6.0, 7.7),
 )
 private val sleepSession: SleepSession = run {
     val base = Instant.ofEpochMilli(1712235600000L)
@@ -286,39 +273,6 @@ private val sleepDetailSession: SleepSession = run {
         )
     )
 }
-private val bloodOxygenBarMins = listOf(
-    96.0, 97.5, 98.5, 95.0, 97.0, 96.5, 97.0, 96.5, 97.5, 98.0,
-    96.5, 96.0, 97.5, 98.5, 96.0, 95.5, 97.5, 97.0, 96.0, 96.5,
-    97.5, 95.5, 98.5, 96.0, 97.0, 97.5
-)
-private val bloodOxygenDots: List<List<Double>> = listOf(
-    listOf(98.5, 97.0),        // 0  above ref
-    listOf(94.5, 98.0),        // 1  one below, one above
-    listOf(99.0),              // 2  above ref
-    listOf(93.0, 97.5),        // 3  one below, one above
-    listOf(98.0, 96.5),        // 4  above ref
-    listOf(94.0, 93.5, 97.0),  // 5  two below, one above
-    listOf(99.0, 97.5),        // 6  above ref
-    listOf(98.5),              // 7  above ref
-    listOf(94.0, 97.0, 98.5),  // 8  one below, two above
-    listOf(99.0, 96.5),        // 9  above ref
-    listOf(93.5, 98.0),        // 10 one below, one above
-    listOf(97.5, 99.0),        // 11 above ref
-    listOf(98.0, 96.5),        // 12 above ref
-    listOf(94.5, 97.0),        // 13 one below, one above
-    listOf(98.5, 99.0),        // 14 above ref
-    listOf(93.0, 94.0, 98.0),  // 15 two below, one above
-    listOf(97.5),              // 16 above ref
-    listOf(94.5, 99.0, 97.0),  // 17 one below, two above
-    listOf(98.5, 96.5),        // 18 above ref
-    listOf(99.0, 97.5),        // 19 above ref
-    listOf(93.5, 98.0),        // 20 one below, one above
-    listOf(96.5, 98.5),        // 21 above ref
-    listOf(94.0, 97.0),        // 22 one below, one above
-    listOf(99.0, 98.0),        // 23 above ref
-    listOf(97.5, 96.0),        // 24 above ref
-    listOf(94.0, 98.5),        // 25 one below, one above
-)
 private val activityRings = listOf(
     ProgressChartMark(x = 0.0, current = 420.0, max = 600.0, label = "Move", unit = "kcal"),
     ProgressChartMark(x = 1.0, current = 41.0, max = 60.0, label = "Exercise", unit = "min"),
@@ -404,7 +358,7 @@ fun HealthSummaryScreen() {
 
     if (detail != null) {
         BackHandler { detail = null }
-        PinnedDetailScreen(detail!!) { detail = null }
+        PinnedDetailScreen(detail!!) { }
         return
     }
 
@@ -444,7 +398,6 @@ fun HealthSummaryScreen() {
             ) {
                 HeartRateTrendCard()
                 StepsTrendCard()
-                BloodOxygenTrendCard()
             }
 
             SectionHeader("Highlights", null)
@@ -948,91 +901,6 @@ private fun StepsTrendCard() {
         }
         Text(
             "26 weeks", fontSize = 11.sp, color = AHSteps, fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(start = 16.dp, bottom = 10.dp, top = 4.dp)
-        )
-    }
-}
-
-@Composable
-private fun BloodOxygenTrendCard() {
-    val skyBlue = Color(0xFF5AC8FA)
-    val barGrey = Color(0xFFD1D1D6)
-    val n = bloodOxygenBarMins.size
-
-    val yDomainMax = 100.5
-    val yDomainMin = 91.5
-    val yRange = yDomainMax - yDomainMin
-
-    AHCardContainer {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("🫁", fontSize = 16.sp)
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    "Blood Oxygen",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = skyBlue
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "On average, your blood oxygen level was 98.1% over the last 26 weeks.",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 20.sp
-            )
-        }
-        CardHairline()
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(130.dp)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val slotW = size.width / n
-                val barW = slotW * 0.45f
-                val dotR = slotW * 0.20f
-
-                fun valueToY(v: Double): Float =
-                    ((yDomainMax - v) / yRange * size.height).toFloat()
-
-                for (i in 0 until n) {
-                    val cx = (i + 0.5f) * slotW
-                    val topY = valueToY(100.0)
-                    val botY = valueToY(bloodOxygenBarMins[i])
-                    val h = (botY - topY).coerceAtLeast(4f)
-                    val r = (barW / 2f).coerceAtMost(h / 2f)
-                    drawRoundRect(
-                        color = barGrey,
-                        topLeft = Offset(cx - barW / 2f, topY),
-                        size = Size(barW, h),
-                        cornerRadius = CornerRadius(r)
-                    )
-                    for (dotVal in bloodOxygenDots[i]) {
-                        drawCircle(
-                            color = barGrey,
-                            radius = dotR,
-                            center = Offset(cx, valueToY(dotVal))
-                        )
-                    }
-                }
-
-                val refY = valueToY(95.0)
-                drawLine(
-                    color = skyBlue,
-                    start = Offset(0f, refY),
-                    end = Offset(size.width, refY),
-                    strokeWidth = 7f
-                )
-            }
-        }
-        Text(
-            "26 weeks",
-            fontSize = 11.sp,
-            color = skyBlue,
-            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(start = 16.dp, bottom = 10.dp, top = 4.dp)
         )
     }
@@ -1566,7 +1434,7 @@ private fun ActivityMetricBarSection(
 private fun ActivityDetailContent() {
     var selectedPeriod by remember { mutableStateOf("M") }
 
-    ActivityPeriodSelector(selectedPeriod) { selectedPeriod = it }
+    ActivityPeriodSelector(selectedPeriod) { }
 
     // Summary legend row
     Row(
@@ -1701,7 +1569,7 @@ private fun ActivityDetailContent() {
 private fun HRVDetailContent() {
     var selectedPeriod by remember { mutableStateOf("W") }
 
-    PeriodSelector(selectedPeriod) { selectedPeriod = it }
+    PeriodSelector(selectedPeriod) { }
 
     // Chart card
     Column(
@@ -1895,7 +1763,7 @@ private fun HeartRateDetailContent() {
     val activePointValues = if (isHourly) hourlyPointValues else weeklyPointValues
     val activePageSize = if (isHourly) 24 else 7
 
-    PeriodSelector(selectedPeriod) { selectedPeriod = it }
+    PeriodSelector(selectedPeriod) { }
 
     // Chart card
     Column(
@@ -1999,7 +1867,7 @@ private fun SleepDetailContent() {
     var selectedPeriod by remember { mutableStateOf("D") }
     var showSleepFocusCard by remember { mutableStateOf(true) }
 
-    SleepPeriodSelector(selectedPeriod) { selectedPeriod = it }
+    SleepPeriodSelector(selectedPeriod) { }
 
     // Main chart card
     Column(
@@ -2123,7 +1991,7 @@ private fun SleepDetailContent() {
                     fontSize = 18.sp,
                     color = AHGray,
                     modifier = Modifier
-                        .clickable { showSleepFocusCard = false }
+                        .clickable { }
                         .padding(4.dp)
                 )
             }
